@@ -1,0 +1,4 @@
+aiohttp~=3.8.6
+codetiming~=1.4.0
+pydantic~=1.10.13
+async_retrying~=0.2.2

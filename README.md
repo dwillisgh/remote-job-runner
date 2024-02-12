@@ -1,1 +1,1 @@
-# remote-job-runner
+# py-remote-job-runner
