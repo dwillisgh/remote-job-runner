@@ -26,7 +26,6 @@ async def remote_job_policy(scrape_config, job_posting, remote_job_detection_res
     clientindicatedjobasremote = False
     clientindicatedjobasremotewithnomatches = False
     remotejobmatchfound = False
-    hybridjobmatchfound = False
     jobindicatedasnonremote = False
     remotetermsfoundondescriptionsize = 0
     jobfalsepositiveremotesize = 0
@@ -41,67 +40,69 @@ async def remote_job_policy(scrape_config, job_posting, remote_job_detection_res
     remotejobincityonly = False
 
     # job is not remote
-    if ((remotejobdetectionresponse["descriptionmatches"] is None)
-            and (remotejobdetectionresponse["titlematches"] is None)
-            and (remotejobdetectionresponse["addresslocalitymatches"] is None)):
+    if (("descriptionmatches" not in remotejobdetectionresponse)
+            and ("titlematches" not in remotejobdetectionresponse)
+            and ("addresslocalitymatches" not in remotejobdetectionresponse)):
         remotejobmatchfound = False
         companyremotejobreport.numnonremotejobs += 1
 
     # job is remote only in title
-    if ((remotejobdetectionresponse["descriptionmatches"] is None)
-            and (remotejobdetectionresponse["titlematches"] is not None)
-            and (remotejobdetectionresponse["addresslocalitymatches"] is None)):
+    if (("descriptionmatches" not in remotejobdetectionresponse)
+            and ("titlematches" in remotejobdetectionresponse)
+            and ("addresslocalitymatches" not in remotejobdetectionresponse)):
         remotejobintitleonly = True
 
     # job is remote only in title
-    if ((remotejobdetectionresponse["descriptionmatches"] is None)
-            and (remotejobdetectionresponse["titlematches"] is None)
-            and (remotejobdetectionresponse["addresslocalitymatches"] is not None)):
+    if (("descriptionmatches" not in remotejobdetectionresponse)
+            and ("titlematches" not in remotejobdetectionresponse)
+            and ("addresslocalitymatches" in remotejobdetectionresponse)):
         remotejobincityonly = True
 
     # job is hybrid in description
-    if remotejobdetectionresponse["descriptionhybridmatches"] is not None:
-        hybridjobmatchfound = True
+    if "descriptionhybridmatches" in remotejobdetectionresponse:
         companyremotejobreport.numhybridjobs += 1
 
     # client indicated job as remote
-    if remotejobdetectionresponse["jobLocationType"] == "TELECOMMUTE":
+    if ("jobLocationType" in remotejobdetectionresponse and
+            remotejobdetectionresponse["jobLocationType"] == "TELECOMMUTE"):
         clientindicatedjobasremote = True
         companyremotejobreport.numclientindicatedjobasremote += 1
 
-    if remotejobdetectionresponse["jobLocationType"] == "TELECOMMUTE" and remotejobmatchfound is False:
+    if ("jobLocationType" in remotejobdetectionresponse and
+            remotejobdetectionresponse["jobLocationType"] == "TELECOMMUTE"
+            and remotejobmatchfound is False):
         clientindicatedjobasremotewithnomatches = True
         companyremotejobreport.numclientindicatedjobasremotewithnomatches += 1
 
     # description has at least 1 false positive remote match
-    if remotejobdetectionresponse["descriptionfalsepositiveremotematches"] is not None:
+    if "descriptionfalsepositiveremotematches" in remotejobdetectionresponse:
         jobfalsepositiveremotesize = len(remotejobdetectionresponse["descriptionfalsepositiveremotematches"])
         companyremotejobreport.numfalsepositiveremotejobsmatched += 1
 
     # description has at least 1 nonremote match
-    if remotejobdetectionresponse["descriptionnonremotematches"] is not None:
+    if "descriptionnonremotematches" in remotejobdetectionresponse:
         jobindicatedasnonremote = True
         jobnonremotesize = len(remotejobdetectionresponse["descriptionnonremotematches"])
         companyremotejobreport.numnonremotejobs += 1
 
     # remote job with at least 1 description match
-    if remotejobdetectionresponse["descriptionmatches"] is not None:
+    if "descriptionmatches" in remotejobdetectionresponse:
         remotejobmatchfound = True
         companyremotejobreport.numremotematchindescriptionprocessed += 1
         remotedescriptionmatchessize = len(remotejobdetectionresponse["descriptionmatches"])
 
     # remote job with at least 1 title match
-    if remotejobdetectionresponse["titlematches"] is not None:
+    if "titlematches" in remotejobdetectionresponse:
         remotejobmatchfound = True
         companyremotejobreport.numremotematchintitleprocessed += 1
 
     # remote job with at least 1 locality match
-    if remotejobdetectionresponse["addresslocalitymatches"] is not None:
+    if "addresslocalitymatches" in remotejobdetectionresponse:
         remotejobmatchfound = True
         companyremotejobreport.numremotematchincityprocessed += 1
 
     # found at least 1 remote term in description
-    if remotejobdetectionresponse["descriptionremotematches"] is not None:
+    if "descriptionremotematches" in remotejobdetectionresponse:
         remotetermsfoundondescriptionsize = len(remotejobdetectionresponse["descriptionremotematches"])
         companyremotejobreport.numremotematchindescriptionprocessed += 1
 
